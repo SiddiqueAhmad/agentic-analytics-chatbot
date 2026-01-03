@@ -5,7 +5,6 @@ from typing import List, Optional
 from typing_extensions import TypedDict
 from annotated_types import Annotated
 
-# --- FIX 1: Correct Import ---
 from langchain_google_genai import ChatGoogleGenerativeAI 
 
 from langgraph.graph import StateGraph
@@ -13,7 +12,6 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import SystemMessage
 
-# Assuming these exist in your local files
 from tools import verify_identity, validate_order_query, execute_order_query
 from system_prompt import SYSTEM_PROMPT
 from langchain_core.messages import HumanMessage
@@ -24,11 +22,6 @@ from redis import Redis
 from config import settings
 
 redis_client = Redis.from_url(settings.redis_url)
-
-# --- FIX 2: Correct Model Initialization ---
-# # Ensure GOOGLE_API_KEY is set in your environment
-# if "GOOGLE_API_KEY" not in os.environ:
-#     os.environ["GOOGLE_API_KEY"] = settings.google_api_key
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash-exp", 
@@ -72,11 +65,12 @@ workflow.add_conditional_edges(
 workflow.add_edge("tools", "agent")
 
 checkpointer = RedisSaver(redis_client=redis_client)
+
 checkpointer.create_indexes()
 checkpointer.setup()
+
 app_graph = workflow.compile(checkpointer=checkpointer)
 
-# --- 3. FastAPI Setup ---
 app = FastAPI(title="LangGraph Analytics Bot")
 
 class ChatRequest(BaseModel):
