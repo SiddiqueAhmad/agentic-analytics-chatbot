@@ -14,8 +14,9 @@ dependencies = [
     "pydantic-settings",
 ]
 
-dev-dependencies = [
-    "ruff",
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
 ]
 
 # --- Ruff Configuration ---
@@ -84,3 +85,5 @@ skip-magic-trailing-comma = false
 
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
+
+

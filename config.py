@@ -8,5 +8,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
+
 # Create a global settings object
 settings = Settings()
