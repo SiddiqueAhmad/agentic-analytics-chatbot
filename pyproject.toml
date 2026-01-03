@@ -16,6 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=1.19.1",
     "pre-commit>=4.5.1",
     "ruff>=0.14.10",
 ]
@@ -88,3 +89,8 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
