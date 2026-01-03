@@ -115,7 +115,7 @@ curl -X POST "http://localhost:8000/chat" \
 ## 📂 Project Structure
 
 ```text
-lang-graph/
+agentic-analytics-chatbot/
 ├── server.py           # Main FastAPI entry point & Graph definition
 ├── tools.py            # Tool definitions (Verify, Validate, Execute)
 ├── system_prompt.py    # LLM Instructions & Guardrails
