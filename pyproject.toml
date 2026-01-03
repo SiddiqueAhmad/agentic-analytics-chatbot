@@ -1,0 +1,15 @@
+[project]
+name = "chatbot"
+version = "0.1.0"
+description = "LangGraph Chatbot with Redis Memory"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",                      # Required for the API server
+    "langgraph",
+    "langgraph-checkpoint-redis",   # Required for RedisSaver
+    "uvicorn",
+    "langchain_google_genai",
+    "redis",
+    "pydantic-settings",
+]

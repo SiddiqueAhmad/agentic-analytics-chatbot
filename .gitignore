@@ -1,0 +1,42 @@
+# --- Python Core ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual Environments (uv creates .venv by default) ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Environment Variables (CRITICAL: Never commit keys) ---
+.env
+.env.local
+.env.*.local
+
+# --- IDE Settings ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Mac OS Junk ---
+.DS_Store
+.DS_Store?
+
+# --- Application Logs ---
+*.log
+logs/
+
+# --- Testing & Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Redis Data (If running locally without Docker) ---
+dump.rdb
+
+# --- Optional: UV Lockfile ---
+# Standard practice is to COMMIT uv.lock to ensure reproducible builds.
+# Only uncomment the line below if you specifically do NOT want to lock versions.
+# uv.lock
