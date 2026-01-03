@@ -1,53 +1,51 @@
-import uvicorn
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from typing import List, Optional
-from typing_extensions import TypedDict
+
+import uvicorn
 from annotated_types import Annotated
-
-from langchain_google_genai import ChatGoogleGenerativeAI 
-
+from fastapi import FastAPI, HTTPException
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.checkpoint.redis import RedisSaver
 from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import SystemMessage
-
-from tools import verify_identity, validate_order_query, execute_order_query
-from system_prompt import SYSTEM_PROMPT
-from langchain_core.messages import HumanMessage
-
-from langgraph.checkpoint.redis import RedisSaver
+from pydantic import BaseModel
 from redis import Redis
+from typing_extensions import TypedDict
 
 from config import settings
+from system_prompt import SYSTEM_PROMPT
+from tools import execute_order_query, validate_order_query, verify_identity
 
 redis_client = Redis.from_url(settings.redis_url)
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash-exp", 
-    temperature=0,
-    api_key=settings.google_api_key
+    model="gemini-2.0-flash-exp", temperature=0, api_key=settings.google_api_key
 )
+
 
 # 1. State
 class AgentState(TypedDict):
     messages: Annotated[list, add_messages]
-    customer_id: Optional[str] 
+    customer_id: Optional[str]
+
 
 # 2. Setup Agent
 tools = [verify_identity, validate_order_query, execute_order_query]
 llm_with_tools = llm.bind_tools(tools)
 
+
 def assistant_node(state: AgentState):
     messages = state["messages"]
-    
+
     # Prepend System Prompt if not present
     # (Note: It's safer to check if the *first* message is SystemMessage)
     if not messages or not isinstance(messages[0], SystemMessage):
         messages = [SystemMessage(content=SYSTEM_PROMPT)] + messages
-        
+
     response = llm_with_tools.invoke(messages)
     return {"messages": [response]}
+
 
 # 3. Build Graph
 workflow = StateGraph(AgentState)
@@ -73,13 +71,16 @@ app_graph = workflow.compile(checkpointer=checkpointer)
 
 app = FastAPI(title="LangGraph Analytics Bot")
 
+
 class ChatRequest(BaseModel):
     message: str
     thread_id: str  # Unique ID for the user session (e.g., "user-123")
 
+
 class ChatResponse(BaseModel):
     response: str
-    tool_calls: List[str] = [] # Optional: return what tools were used
+    tool_calls: List[str] = []  # Optional: return what tools were used
+
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
@@ -88,10 +89,10 @@ async def chat_endpoint(request: ChatRequest):
     Pass 'thread_id' to maintain conversation history.
     """
     config = {"configurable": {"thread_id": request.thread_id}}
-    
+
     # Prepare input
     inputs = {"messages": [HumanMessage(content=request.message)]}
-    
+
     final_response_text = ""
     tool_names = []
 
@@ -99,7 +100,7 @@ async def chat_endpoint(request: ChatRequest):
         # We use invoke() instead of stream() for a simple Request/Response API
         # If you want streaming (Server Sent Events), that requires a different setup.
         result = app_graph.invoke(inputs, config=config)
-        
+
         # Extract the last message (the bot's final answer)
         last_message = result["messages"][-1]
         final_response_text = last_message.content
@@ -113,14 +114,15 @@ async def chat_endpoint(request: ChatRequest):
             # Stop if we hit the user's input (don't scan whole history)
             if isinstance(msg, HumanMessage):
                 break
-                
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     return ChatResponse(
         response=final_response_text,
-        tool_calls=list(set(tool_names)) # Remove duplicates
+        tool_calls=list(set(tool_names)),  # Remove duplicates
     )
 
+
 if __name__ == "__main__":
-    uvicorn.run('server:app', host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
