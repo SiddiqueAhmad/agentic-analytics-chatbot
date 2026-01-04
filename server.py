@@ -82,6 +82,8 @@ async def lifespan(app: FastAPI):
     # Compile the graph with the ASYNC checkpointer
     app_graph = workflow.compile(checkpointer=checkpointer)
 
+    # print(app_graph.get_graph().draw_ascii())
+
     yield
 
     # Shutdown: Close connections
