@@ -122,6 +122,8 @@ uv run streamlit run frontend.py
 ```
 Visit **http://localhost:8501** in your browser to start chatting.
 
+See Streamlit Demo ![streamlit-demo.png](./streamlit-demo.png) for a demo.
+
 ---
 
 ## 📂 Project Structure
