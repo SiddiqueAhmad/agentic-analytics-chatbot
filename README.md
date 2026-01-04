@@ -31,8 +31,8 @@ The flow follows a **Cyclic Graph**:
 
 ### 1. Clone & Setup
 ```bash
-git clone <your-repo-url>
-cd lang-graph
+git clone https://github.com/SiddiqueAhmad/agentic-analytics-chatbot.git
+cd agentic-analytics-chatbot
 ```
 
 ### 2. Configure Environment
@@ -112,11 +112,24 @@ curl -X POST "http://localhost:8000/chat" \
 
 ---
 
+## 💻 Frontend
+
+The project includes a **Streamlit** frontend designed to demonstrate the agent's capabilities visually. It connects to the backend via Server-Sent Events (SSE) to show real-time "thinking" status updates.
+
+To run the UI:
+```bash
+uv run streamlit run frontend.py
+```
+Visit **http://localhost:8501** in your browser to start chatting.
+
+---
+
 ## 📂 Project Structure
 
 ```text
 agentic-analytics-chatbot/
 ├── server.py           # Main FastAPI entry point & Graph definition
+├── frontend.py         # Streamlit UI
 ├── tools.py            # Tool definitions (Verify, Validate, Execute)
 ├── system_prompt.py    # LLM Instructions & Guardrails
 ├── pyproject.toml      # Project dependencies
